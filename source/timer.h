@@ -1,10 +1,9 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-time_t getCloseTime();
+time_t time_get_close();
 
-time_t getCurrentTime();
-
+time_t time_get_current();
 
 
 #endif
