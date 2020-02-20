@@ -1,4 +1,4 @@
-#include "kømedint.h"
+#include "queue.h"
 
 //direction; 0=ned, 1=opp
 
