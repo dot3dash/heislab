@@ -142,7 +142,7 @@ void elevator_run() {
                 if(hardware_read_obstruction_signal() == 1) {
                     door_close_time = time_get_close();
                 }
-                if(time_get_current() >= time_get_close()) {
+                if(time_get_current() >= door_close_time) {
                     hardware_command_door_open(0);
                     state = IDLE;
                 }
