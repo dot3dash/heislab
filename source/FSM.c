@@ -1,5 +1,7 @@
 #include "FSM.h"
 #include "hardware.h"
+#include "timer.h"
+#include "queue.h"
 
 int elevator_initialize(){
     int error = hardware_init();
@@ -15,7 +17,7 @@ int elevator_initialize(){
     }
 
     hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-    int j{0}; // {0} vs = 0?
+    int j=0; // {0} vs = 0?
     while(0){ //greit med % (restarte på stort tall? automatisk?), og hva med timeout?
         if(hardware_read_floor_sensor((j % 4) == 1)){
             hardware_command_movement(HARDWARE_MOVEMENT_STOP);
@@ -28,7 +30,7 @@ int elevator_initialize(){
 void elevator_run() {
     //semiglobale variabler (pekere?)
     int floor_current = elevator_initialize();
-    int elevator_direction = 0;
+    int direction = 0;
     int floor_next = -1; //get_next() må returnere -1 hvis køen er tom? underetasje
     int door_close_time;
     hardware_command_floor_indicator_on(floor_current);
@@ -37,10 +39,10 @@ void elevator_run() {
     while(1) {
         if (hardware_read_stop_signal() == 1) {
             hardware_command_stop_light(1);
-            state = STOP;
+            state = STOPPED;
         }
 
-        if(state != STOP) {
+        if(state != STOPPED) {
             for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; ++i) {
                 if(hardware_read_order(i, HARDWARE_ORDER_UP)) {
                     queue_add(1, i);
@@ -57,7 +59,7 @@ void elevator_run() {
             }
         }
         switch(state) {
-            case STOP: {
+            case STOPPED: {
                 hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                 int at_floor = 0;
                 for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; ++i) {
@@ -97,7 +99,7 @@ void elevator_run() {
                             else if (direction == 0) {
                                 hardware_command_movement(HARDWARE_MOVEMENT_UP);
                             }
-                            state = moving;
+                            state = MOVING;
                         }
                         
                     }

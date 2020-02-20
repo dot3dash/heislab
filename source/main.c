@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "hardware.h"
+#include "FSM.h"
 
+/*
 static void clear_all_order_lights(){
     HardwareOrder order_types[3] = {
         HARDWARE_ORDER_UP,
@@ -23,9 +25,15 @@ static void sigint_handler(int sig){
     printf("Terminating elevator\n");
     hardware_command_movement(HARDWARE_MOVEMENT_STOP);
     exit(0);
-}
+}*/
 
 int main(){
+
+elevator_initialize();
+elevator_run();
+
+
+/*
     int error = hardware_init();
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
@@ -52,26 +60,26 @@ int main(){
             hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
         }
 
-        /* All buttons must be polled, like this: */
+     * All buttons must be polled, like this: *//*
         for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++){
             if(hardware_read_order(f, HARDWARE_ORDER_INSIDE)){
                 hardware_command_floor_indicator_on(f);
             }
         }
 
-        /* Lights are set and cleared like this: */
+        * Lights are set and cleared like this: *//*
         for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++){
-            /* Internal orders */
+            * Internal orders *//*
             if(hardware_read_order(f, HARDWARE_ORDER_INSIDE)){
                 hardware_command_order_light(f, HARDWARE_ORDER_INSIDE, 1);
             }
 
-            /* Orders going up */
+            * Orders going up *//*
             if(hardware_read_order(f, HARDWARE_ORDER_UP)){
                 hardware_command_order_light(f, HARDWARE_ORDER_UP, 1);
             }
 
-            /* Orders going down */
+            * Orders going down *//*
             if(hardware_read_order(f, HARDWARE_ORDER_DOWN)){
                 hardware_command_order_light(f, HARDWARE_ORDER_DOWN, 1);
             }
@@ -84,7 +92,7 @@ int main(){
         else{
             hardware_command_stop_light(0);
         }
-    }
+    }*/
 
     return 0;
 }

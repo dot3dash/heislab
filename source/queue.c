@@ -19,7 +19,6 @@ void queue_remove(int floor){
 }
 
 int queue_get_next(int direction, int current_floor){
-    int next;
     if(direction == 0){ 
         for (int i=current_floor; i >= 0; i--){
             if(down_queue[i]==1){
@@ -38,7 +37,7 @@ int queue_get_next(int direction, int current_floor){
         }
         
     }
-    else if(direction == 1){
+    if(direction == 1){
          for (int i=current_floor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(up_queue[i]==1){
                 return i;
@@ -56,8 +55,5 @@ int queue_get_next(int direction, int current_floor){
         }
 
     }
-
-    else{
-        return -1;
-    }
+    return -1;
 }
