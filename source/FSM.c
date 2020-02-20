@@ -8,23 +8,22 @@ int elevator_initialize(){
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
         exit(1);
-        return -1;
     }
 
-    for(int i = 0; i < 4; ++i){
+    for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; ++i){
         if (hardware_read_floor_sensor(i) == 1){
             return i;
         }
     }
 
     hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-    int j=0; // {0} vs = 0?
-    while(1){ //greit med % (restarte på stort tall? automatisk?), og hva med timeout?
-        if(hardware_read_floor_sensor((j % 4) == 1)){
-            hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-            return j;
+    while(1){
+        for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS) {
+            if(hardware_read_floor_sensor(k) == 1) {
+                hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+                return k;
+            }
         }
-        ++j;
     }
 }
 
@@ -116,24 +115,24 @@ void elevator_run() {
             }
 
             case MOVING: {
-                int j = 0;
                 while(1) {
-                    if(hardware_read_floor_sensor(j % 4)) {
-                        floor_current = j % 4;
-                        hardware_command_floor_indicator_on(floor_current);
-                        if(hardware_read_floor_sensor(floor_current) == floor_next) {
-                            hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-                            queue_remove(floor_current);
+                    for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS; k++) {
+                        if(hardware_read_floor_sensor(k)) {
+                            floor_current = k;
+                            hardware_command_floor_indicator_on(floor_current);
+                            if(hardware_read_floor_sensor(floor_current) == floor_next) {
+                                hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+                                queue_remove(floor_current);
 
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_UP, 0);
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_INSIDE, 0);
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_DOWN, 0);
+                                hardware_command_order_light(floor_next, HARDWARE_ORDER_UP, 0);
+                                hardware_command_order_light(floor_next, HARDWARE_ORDER_INSIDE, 0);
+                                hardware_command_order_light(floor_next, HARDWARE_ORDER_DOWN, 0);
 
-                            door_close_time = time_get_close();
-                            state = DOOR_OPEN;
+                                door_close_time = time_get_close();
+                                state = DOOR_OPEN;
+                            }
                         }
                     }
-                    ++j;
                 }
             }
             
