@@ -6,6 +6,7 @@
 int up_queue[HARDWARE_NUMBER_OF_FLOORS ];
 int down_queue[HARDWARE_NUMBER_OF_FLOORS];
 
-void add_to_queue(int direction, int floor);
-void remove_from_queue(int floor);
-int get_next_floor(int direction, int current_floor);
+
+void queue_add(int direction, int floor);
+void queue_remove(int floor);
+int queue_get_next(int direction, int current_floor);
