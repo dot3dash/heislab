@@ -3,9 +3,9 @@
 
 #define TIME_OPEN 3
 
-time_t time_get_close();
+unsigned long int time_get_close();
 
-time_t time_get_current();
+unsigned long int time_get_current();
 
 
 #endif

@@ -29,8 +29,7 @@ static void sigint_handler(int sig){
 
 int main(){
 
-elevator_initialize();
-elevator_run();
+    elevator_run();
 
 
 /*

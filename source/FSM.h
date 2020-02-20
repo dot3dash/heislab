@@ -10,7 +10,7 @@ typedef enum {
     STOPPED
 } ElevatorState;
 
-void elevator_initialize();
+int elevator_initialize();
 
 void elevator_run(); 
 

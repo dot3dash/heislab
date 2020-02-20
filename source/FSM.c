@@ -8,6 +8,7 @@ int elevator_initialize(){
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
         exit(1);
+        return -1;
     }
 
     for(int i = 0; i < 4; ++i){
@@ -18,7 +19,7 @@ int elevator_initialize(){
 
     hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
     int j=0; // {0} vs = 0?
-    while(0){ //greit med % (restarte på stort tall? automatisk?), og hva med timeout?
+    while(1){ //greit med % (restarte på stort tall? automatisk?), og hva med timeout?
         if(hardware_read_floor_sensor((j % 4) == 1)){
             hardware_command_movement(HARDWARE_MOVEMENT_STOP);
             return j;
@@ -32,7 +33,7 @@ void elevator_run() {
     int floor_current = elevator_initialize();
     int direction = 0;
     int floor_next = -1; //get_next() må returnere -1 hvis køen er tom? underetasje
-    int door_close_time;
+    unsigned long int door_close_time = time_get_close();
     hardware_command_floor_indicator_on(floor_current);
     ElevatorState state = IDLE;
 
