@@ -8,7 +8,6 @@ int elevator_initialize(){
     if(error != 0){
         fprintf(stderr, "Unable to initialize hardware\n");
         exit(1);
-        return -1;
     }
 
     for(int i = 0; i < 4; ++i){
