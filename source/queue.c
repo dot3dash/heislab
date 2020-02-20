@@ -3,6 +3,10 @@
 //direction; 0=ned, 1=opp
 
 void queue_add(int direction, int floor){
+    if(direction == 2) {
+    	down_queue[floor] = 1;
+	up_queue[floor] = 1;
+    }
     if (direction == 0){
         down_queue[floor]=1;
     }
@@ -30,7 +34,7 @@ int queue_get_next(int direction, int current_floor){
                 return i;
             }
         }
-        for (int i=HARDWARE_NUMBER_OF_FLOORS; i > current_floor; i--){
+        for (int i=HARDWARE_NUMBER_OF_FLOORS-1; i >= 0; i--){
             if(down_queue[i]==1){
                 return i;
             }
@@ -43,7 +47,7 @@ int queue_get_next(int direction, int current_floor){
                 return i;
             }
         }
-        for (int i=current_floor; i >= 0; i--){
+        for (int i=HARDWARE_NUMBER_OF_FLOORS-1; i >= 0; i--){
             if(down_queue[i]==1){
                 return i;
             }

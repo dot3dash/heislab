@@ -64,6 +64,9 @@ void elevator_run() {
                 int at_floor = 0;
                 for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; ++i) {
                     queue_remove(i);
+		    hardware_command_order_light(i, HARDWARE_ORDER_UP, 0);
+		    hardware_command_order_light(i, HARDWARE_ORDER_INSIDE, 0);
+		    hardware_command_order_light(i, HARDWARE_ORDER_DOWN, 0);
                     if(hardware_read_floor_sensor(i) == 1) {
                         at_floor = 1;
                     }
@@ -74,6 +77,7 @@ void elevator_run() {
                     if(at_floor) {
                         door_close_time = time_get_close();
                         state = DOOR_OPEN;
+			break;
                     }
                     else {
                         state = IDLE;
@@ -91,49 +95,52 @@ void elevator_run() {
                             hardware_command_order_light(floor_next, HARDWARE_ORDER_INSIDE, 0);
                             hardware_command_order_light(floor_next, HARDWARE_ORDER_DOWN, 0);
                             state = DOOR_OPEN;
+			    break;
                         }
                         else {
                             if(direction == 1) {
                                 hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
                             }
-                            else if (direction == 0) {
+                            else{
                                 hardware_command_movement(HARDWARE_MOVEMENT_UP);
                             }
                             state = MOVING;
+			    break;
                         }
                         
                     }
                     else if(floor_next > floor_current) {
                         direction = 1;
                         hardware_command_movement(HARDWARE_MOVEMENT_UP);
+			state = MOVING;
                     }
                     else if(floor_next < floor_current) {
                         direction = 0;
                         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
+			state = MOVING;
                     }
                 }
                 break;
             }
 
-            case MOVING: {
-                while(1) {
-                    for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS; k++) {
-                        if(hardware_read_floor_sensor(k)) {
-                            floor_current = k;
-                            hardware_command_floor_indicator_on(floor_current);
-                            if(hardware_read_floor_sensor(floor_current) == floor_next) {
-                                hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-                                queue_remove(floor_current);
+            case MOVING: {	
+                for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS; k++) {
+                    if(hardware_read_floor_sensor(k)) {
+                        floor_current = k;
+                        hardware_command_floor_indicator_on(floor_current);
+                        if(floor_current == floor_next) {
+                            hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+                            queue_remove(floor_current);
 
-                                hardware_command_order_light(floor_next, HARDWARE_ORDER_UP, 0);
-                                hardware_command_order_light(floor_next, HARDWARE_ORDER_INSIDE, 0);
-                                hardware_command_order_light(floor_next, HARDWARE_ORDER_DOWN, 0);
+                            hardware_command_order_light(floor_next, HARDWARE_ORDER_UP, 0);
+                            hardware_command_order_light(floor_next, HARDWARE_ORDER_INSIDE, 0);
+                            hardware_command_order_light(floor_next, HARDWARE_ORDER_DOWN, 0);
 
-                                door_close_time = time_get_close();
-                                state = DOOR_OPEN;
+                            door_close_time = time_get_close();
+                            state = DOOR_OPEN;
+	    		    break;
                             }
-                        }
-                    }
+                     }
                 }
                 break;
             }
