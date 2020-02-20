@@ -18,7 +18,7 @@ int elevator_initialize(){
 
     hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
     while(1){
-        for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS) {
+        for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS; k++) {
             if(hardware_read_floor_sensor(k) == 1) {
                 hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                 return k;
