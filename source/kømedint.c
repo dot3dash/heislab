@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "kømedint.h"
 
 #define HARDWARE_NUMBER_OF_FLOORS 4
 
