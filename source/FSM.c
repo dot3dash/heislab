@@ -123,7 +123,8 @@ void elevator_run() {
                 break;
             }
 
-            case MOVING: {	
+            case MOVING: {
+		floor_next = queue_get_next(direction, floor_current);	 
                 for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS; k++) {
                     if(hardware_read_floor_sensor(k)) {
                         floor_current = k;
