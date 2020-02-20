@@ -112,6 +112,7 @@ void elevator_run() {
                         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
                     }
                 }
+                break;
             }
 
             case MOVING: {
@@ -134,6 +135,7 @@ void elevator_run() {
                         }
                     }
                 }
+                break;
             }
             
             case DOOR_OPEN: {
@@ -145,6 +147,7 @@ void elevator_run() {
                     hardware_command_door_open(0);
                     state = IDLE;
                 }
+                break;
             }
         }
     }
