@@ -3,6 +3,19 @@
 #include "timer.h"
 #include "queue.h"
 
+static void clear_all_floor_lights(int floor){
+    HardwareOrder order_types[3] = {
+        HARDWARE_ORDER_UP,
+        HARDWARE_ORDER_INSIDE,
+        HARDWARE_ORDER_DOWN
+    };
+
+    for(int i = 0; i < 3; i++){
+        HardwareOrder type = order_types[i];
+        hardware_command_order_light(floor, type, 0);
+    }
+}
+
 int elevator_initialize(){
     int error = hardware_init();
     if(error != 0){
@@ -62,11 +75,9 @@ void elevator_run() {
             case STOPPED: {
                 hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                 int at_floor = 0;
-                for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; ++i) {
+                for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; ++f) {
                     queue_remove(i);
-		    hardware_command_order_light(i, HARDWARE_ORDER_UP, 0);
-		    hardware_command_order_light(i, HARDWARE_ORDER_INSIDE, 0);
-		    hardware_command_order_light(i, HARDWARE_ORDER_DOWN, 0);
+                    clear_all_floor_lights(f);
                     if(hardware_read_floor_sensor(i) == 1) {
                         at_floor = 1;
                     }
@@ -77,7 +88,7 @@ void elevator_run() {
                     if(at_floor) {
                         door_close_time = time_get_close();
                         state = DOOR_OPEN;
-			break;
+			            break;
                     }
                     else {
                         state = IDLE;
@@ -86,45 +97,41 @@ void elevator_run() {
                 break;
             }
 
-            case IDLE: {
+            case (IDLE && (queue_get_next() != -1)): { //Idle and something in queue
                 floor_next = queue_get_next(direction, floor_current);
-                if(floor_next != -1) {
-                    if(floor_next == floor_current) {
-                        if(hardware_read_floor_sensor(floor_next)) {
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_UP, 0);
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_INSIDE, 0);
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_DOWN, 0);
-                            state = DOOR_OPEN;
-			    break;
+                if(floor_next == floor_current) {
+                    if(hardware_read_floor_sensor(floor_next)) {
+                        clear_all_floor_lights(floor_current);
+                        state = DOOR_OPEN;
+		                break;
+                    }
+                    else {
+                        if(direction == 1) {
+                            hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
                         }
-                        else {
-                            if(direction == 1) {
-                                hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-                            }
-                            else{
-                                hardware_command_movement(HARDWARE_MOVEMENT_UP);
-                            }
-                            state = MOVING;
-			    break;
+                        else{
+                            hardware_command_movement(HARDWARE_MOVEMENT_UP);
                         }
-                        
+                        state = MOVING;
+			            break;
+                        } 
                     }
                     else if(floor_next > floor_current) {
                         direction = 1;
                         hardware_command_movement(HARDWARE_MOVEMENT_UP);
-			state = MOVING;
+			            state = MOVING;
                     }
                     else if(floor_next < floor_current) {
                         direction = 0;
                         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-			state = MOVING;
+			            state = MOVING;
                     }
                 }
                 break;
             }
 
             case MOVING: {
-		floor_next = queue_get_next(direction, floor_current);	 
+		        floor_next = queue_get_next(direction, floor_current);	 
                 for(int k = 0; k < HARDWARE_NUMBER_OF_FLOORS; k++) {
                     if(hardware_read_floor_sensor(k)) {
                         floor_current = k;
@@ -132,16 +139,12 @@ void elevator_run() {
                         if(floor_current == floor_next) {
                             hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                             queue_remove(floor_current);
-
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_UP, 0);
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_INSIDE, 0);
-                            hardware_command_order_light(floor_next, HARDWARE_ORDER_DOWN, 0);
-
+                            clear_all_floor_lights(floor_current);
                             door_close_time = time_get_close();
                             state = DOOR_OPEN;
-	    		    break;
-                            }
-                     }
+                            break;
+                        }
+                    }
                 }
                 break;
             }
