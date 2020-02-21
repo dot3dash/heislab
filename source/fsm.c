@@ -1,4 +1,4 @@
-#include "FSM.h"
+#include "fsm.h"
 #include "hardware.h"
 #include "timer.h"
 #include "queue.h"
@@ -44,6 +44,7 @@ void elevator_run() {
     //semiglobale variabler (pekere?)
     int floor_current = elevator_initialize();
     int direction = 0;
+    int elevator_direction = 0;
     int floor_next = -1; //get_next() må returnere -1 hvis køen er tom? underetasje
     unsigned long int door_close_time = time_get_close();
     hardware_command_floor_indicator_on(floor_current);
@@ -106,7 +107,7 @@ void elevator_run() {
 		                break;
                     }
                     else {
-                        if(direction == 1) {
+                        if(elevator_direction == 1) {
                             hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
                         }
                         else{
@@ -136,6 +137,7 @@ void elevator_run() {
                     if(hardware_read_floor_sensor(k)) {
                         floor_current = k;
                         hardware_command_floor_indicator_on(floor_current);
+                        elevator_direction = direction;
                         if(floor_current == floor_next) {
                             hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                             queue_remove(floor_current);
