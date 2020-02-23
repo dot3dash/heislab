@@ -41,11 +41,10 @@ int elevator_initialize(){
 }
 
 void elevator_run() {
-    //semiglobale variabler (pekere?)
     int floor_current = elevator_initialize();
     int direction = 0;
     int elevator_direction = 0;
-    int floor_next = -1; //get_next() må returnere -1 hvis køen er tom? underetasje
+    int floor_next = -1;
     unsigned long int door_close_time = time_get_close();
     hardware_command_floor_indicator_on(floor_current);
     ElevatorState state = IDLE;
@@ -82,6 +81,7 @@ void elevator_run() {
                     if(hardware_read_floor_sensor(f) == 1) {
                         at_floor = 1;
                         hardware_command_floor_indicator_on(f);
+                        floor_current = f;
                     }
                 }
                 hardware_command_door_open(at_floor);
@@ -99,7 +99,7 @@ void elevator_run() {
                 break;
             }
 
-            case IDLE: { //Idle and something in queue
+            case IDLE: {
                 floor_next = queue_get_next(direction, floor_current);
                 if(floor_next != -1) {
 
