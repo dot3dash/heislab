@@ -4,15 +4,15 @@
 
 void queue_add(int direction, int floor_current){
     if(direction == 2) {
-    	down_queue[floor] = 1;
-	up_queue[floor] = 1;
+    	down_queue[floor_current] = 1;
+	up_queue[floor_current] = 1;
     }
     if (direction == 0){
-        down_queue[floor]=1;
+        down_queue[floor_current]=1;
     }
 
     else if (direction == 1) {
-        up_queue[floor]=1;
+        up_queue[floor_current]=1;
     }
 }
 
@@ -23,7 +23,7 @@ void queue_remove(int floor){
 
 int queue_get_next(int direction, int floor_current){
     if(direction == 0){ 
-        for (int i=current_floor; i >= 0; i--){
+        for (int i=floor_current; i >= 0; i--){
             if(down_queue[i]==1){
                 return i;
             }
@@ -41,7 +41,7 @@ int queue_get_next(int direction, int floor_current){
         
     }
     if(direction == 1){
-         for (int i=current_floor; i < HARDWARE_NUMBER_OF_FLOORS; i++){
+         for (int i=floor_current; i < HARDWARE_NUMBER_OF_FLOORS; i++){
             if(up_queue[i]==1){
                 return i;
             }
