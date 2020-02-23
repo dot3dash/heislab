@@ -77,9 +77,9 @@ void elevator_run() {
                 hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                 int at_floor = 0;
                 for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; ++f) {
-                    queue_remove(i);
+                    queue_remove(f);
                     clear_all_floor_lights(f);
-                    if(hardware_read_floor_sensor(i) == 1) {
+                    if(hardware_read_floor_sensor(f) == 1) {
                         at_floor = 1;
                     }
                 }
@@ -98,15 +98,19 @@ void elevator_run() {
                 break;
             }
 
-            case (IDLE && (queue_get_next() != -1)): { //Idle and something in queue
+            case IDLE: { //Idle and something in queue
                 floor_next = queue_get_next(direction, floor_current);
-                if(floor_next == floor_current) {
-                    if(hardware_read_floor_sensor(floor_next)) {
-                        clear_all_floor_lights(floor_current);
-                        state = DOOR_OPEN;
-		                break;
-                    }
-                    else {
+                if(floor_next != -1) {
+
+                     if(floor_next == floor_current) {
+                         if(hardware_read_floor_sensor(floor_next)) {
+                         clear_all_floor_lights(floor_current);
+                         queue_remove(floor_next);
+                         door_close_time = time_get_close();
+                         state = DOOR_OPEN;
+		                 break;
+                     }
+                     else {
                         if(elevator_direction == 1) {
                             hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
                         }
@@ -116,17 +120,17 @@ void elevator_run() {
                         state = MOVING;
 			            break;
                         } 
-                    }
-                    else if(floor_next > floor_current) {
+                     }
+                     else if(floor_next > floor_current) {
                         direction = 1;
                         hardware_command_movement(HARDWARE_MOVEMENT_UP);
 			            state = MOVING;
-                    }
-                    else if(floor_next < floor_current) {
+                     }
+                     else if(floor_next < floor_current) {
                         direction = 0;
                         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
 			            state = MOVING;
-                    }
+                     }
                 }
                 break;
             }
@@ -153,6 +157,11 @@ void elevator_run() {
             
             case DOOR_OPEN: {
                 hardware_command_door_open(1);
+                if(queue_get_next(direction, floor_current) == floor_current) {
+                    clear_all_floor_lights(floor_current);
+                    queue_remove(floor_current);
+                    door_close_time = time_get_close();
+                }
                 if(hardware_read_obstruction_signal() == 1) {
                     door_close_time = time_get_close();
                 }
