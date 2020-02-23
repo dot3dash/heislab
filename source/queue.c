@@ -2,7 +2,7 @@
 
 //direction; 0=ned, 1=opp
 
-void queue_add(int direction, int floor){
+void queue_add(int direction, int floor_current){
     if(direction == 2) {
     	down_queue[floor] = 1;
 	up_queue[floor] = 1;
@@ -16,13 +16,12 @@ void queue_add(int direction, int floor){
     }
 }
 
-
 void queue_remove(int floor){
     down_queue[floor]=0;
     up_queue[floor]=0;
 }
 
-int queue_get_next(int direction, int current_floor){
+int queue_get_next(int direction, int floor_current){
     if(direction == 0){ 
         for (int i=current_floor; i >= 0; i--){
             if(down_queue[i]==1){

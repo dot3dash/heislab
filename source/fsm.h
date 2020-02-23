@@ -17,7 +17,7 @@ typedef enum {
 } ElevatorState;
 
 /**
- *
+ * @brief 
  */
 int elevator_initialize();
 

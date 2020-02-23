@@ -81,6 +81,7 @@ void elevator_run() {
                     clear_all_floor_lights(f);
                     if(hardware_read_floor_sensor(f) == 1) {
                         at_floor = 1;
+                        hardware_command_floor_indicator_on(f);
                     }
                 }
                 hardware_command_door_open(at_floor);
@@ -174,23 +175,3 @@ void elevator_run() {
         }
     }
 }
-
-//ALLTID
-//Sjekke stoppknapp
-//Legge til bestillinger, sette lys.
-
-
-//switch med tilstander, KUN VED GITT TILSTAND
-
-//CASE STOP: stopp all bevegelse, slett køen, åpne dørene hvis i etasje,
-//bytt til DOOR_OPEN når knappen slippes hvis i etasje, bytt til IDLE hvis ikke
-
-//case IDLE: spør om det ligger noe i køen
-//hvis ja, sett direction, bytt state til MOVING.
-
-//case MOVING: poll etter etasjen heisen skal til, sett lys når den passerer etasjer
-//når ankommet riktig etasje, stopp bevegelse, skru av lys, finn tidspunkt
-//for å lukke dørene og bytt til state DOOR_OPEN
-
-//case DOOR_OPEN: åpne dørene, poll etter tidspunkt å lukke dørene, 
-//ta hensyn til obstruksjon og bytt til state IDLE når dørene er lukket
