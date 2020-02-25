@@ -27,7 +27,7 @@ int elevator_initialize(){
         if (hardware_read_floor_sensor(i) == 1){
             return i;
         }
-    }
+    }5
 
     hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
     while(1){
@@ -114,9 +114,11 @@ void elevator_run() {
                      else {
                         if(elevator_direction == 1) {
                             hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
+                            direction = 0;
                         }
                         else{
                             hardware_command_movement(HARDWARE_MOVEMENT_UP);
+                            direction = 1;
                         }
                         state = MOVING;
 			            break;
