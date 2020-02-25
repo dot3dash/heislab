@@ -127,8 +127,8 @@ void elevator_run() {
                 }
                 if(hardware_read_stop_signal() == 0) {
                     hardware_command_stop_light(0);
-                }
-                state = IDLE; //Merknad (ta med if (hardwarereadstop==0)?)
+                    state = IDLE;
+                }       //Merknad (ta med if (hardwarereadstop==0)?)
                 break; //PWM for knapper som blir holdt inne i samme etasje?
             }
 
