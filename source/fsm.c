@@ -1,7 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
 #include "fsm.h"
 #include "hardware.h"
 #include "timer.h"
 #include "queue.h"
+
+static void sigint_handler(int sig){
+    (void)(sig);
+    printf("Terminating elevator\n");
+    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+    exit(0);
+}
 
 static void clear_all_floor_lights(int floor){
     HardwareOrder order_types[3] = {
@@ -176,4 +186,12 @@ void elevator_run() {
             }
         }
     }
+}
+
+int main(){
+
+    signal(SIGINT, sigint_handler);
+    elevator_run();
+
+    return 0;
 }
