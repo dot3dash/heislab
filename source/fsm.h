@@ -24,6 +24,14 @@ typedef enum {
  */
 int elevator_initialize();
 
+int order_above(int floor_next, int floor_current);
+
+int order_below(int floor_next, int floor_current);
+
+int oder_at_floor(int floor_next, int floor_current);
+
+void move_to_last(int elevator_direction, int floor_next, int* direction);
+
 /**
  * @brief A function with and infinite loop that will run the elevator.
  * Contains the logic of the fsm and uses the other modules to get the floor
