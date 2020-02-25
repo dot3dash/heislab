@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief A queue handler for the elevator.
+ * @brief A queue handler for the elevator, created by Camilla \emoji :zzz:.
  */
 
 #include <stdio.h>

@@ -1,6 +1,7 @@
 /**
  * @file
  * @brief A simple library for getting time used for timing.
+ * Works like a charm \emoji :sweat_drops: \emoji :sweat_drops:.
  */
 #ifndef TIMER_H
 #define TIMER_H
