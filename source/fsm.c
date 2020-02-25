@@ -61,14 +61,14 @@ int oder_at_floor(int floor_next, int floor_current) {
     return floor_next == floor_current;
 }
 
-void move_to_last(int elevator_direction, int floor_next, int& direction) {
+void move_to_last(int elevator_direction, int floor_next, int* direction) {
     if(!hardware_read_floor_sensor(floor_next)) {
         if(elevator_direction == 1){
-            direction = 0;
+            *direction = 0;
             hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
         }
         if(elevator_direction == 0) {
-            direction = 1;
+            *direction = 1;
             hardware_command_movement(HARDWARE_MOVEMENT_UP);
         }
     }
@@ -149,7 +149,7 @@ void elevator_run() {
                     break;
                 }
                 if(oder_at_floor(floor_next, floor_current)) {
-                        move_to_last(elevator_direction, floor_next, direction);
+                        move_to_last(elevator_direction, floor_next, &direction);
                         state = MOVING;
 		                break; //merknad!
                 }
