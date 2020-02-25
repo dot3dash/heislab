@@ -121,6 +121,7 @@ void elevator_run() {
                 if(at_floor) {
                     hardware_command_door_open(at_floor);
                     door_close_time = time_get_close();
+                    hardware_command_stop_light(hardware_read_stop_signal());
                     state = DOOR_OPEN;
 			        break;
                 }
