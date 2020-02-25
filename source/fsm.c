@@ -118,8 +118,8 @@ void elevator_run() {
                         floor_current = f;
                     }
                 }
+                hardware_command_door_open(at_floor);
                 if(at_floor) {
-                    hardware_command_door_open(at_floor);
                     door_close_time = time_get_close();
                     hardware_command_stop_light(hardware_read_stop_signal());
                     state = DOOR_OPEN;
@@ -129,7 +129,7 @@ void elevator_run() {
                     hardware_command_stop_light(0);
                 }
                 state = IDLE; //Merknad (ta med if (hardwarereadstop==0)?)
-                break;
+                break; //PWM for knapper som blir holdt inne i samme etasje?
             }
 
             case IDLE: {
