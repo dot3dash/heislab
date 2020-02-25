@@ -17,10 +17,18 @@ typedef enum {
 } ElevatorState;
 
 /**
- * @brief 
+ * @brief Initializes the elevator with @c hardware_init(),
+ * and takes the elevator downwards to a floor so it knows where it is.
+ *
+ * @return the floor it first reaches.
  */
 int elevator_initialize();
 
-void elevator_run(); 
+/**
+ * @brief A function with and infinite loop that will run the elevator.
+ * Contains the logic of the fsm and uses the other modules to get the floor
+ * order and timing of the door, and access to the hardware \emoji :cold_sweat:.
+ */
+void elevator_run(); //God kommentar?
 
 #endif

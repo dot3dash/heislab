@@ -1,11 +1,9 @@
 /**
  * @file
- * @brief A simple library for getting time used for timing
+ * @brief A simple library for getting time used for timing.
  */
-
 #ifndef TIMER_H
 #define TIMER_H
-
 #define TIME_OPEN 3
 
 /**
@@ -18,7 +16,7 @@ unsigned long int time_get_close();
 /**
  * @brief Getting the current time.
  *
- * @return the current time as an unsigned long int.
+ * @return the current time.
  */
 unsigned long int time_get_current();
 

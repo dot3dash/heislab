@@ -5,12 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#define HARDWARE_NUMBER_OF_FLOORS 4
-
-
-int up_queue[HARDWARE_NUMBER_OF_FLOORS ];
-int down_queue[HARDWARE_NUMBER_OF_FLOORS];
+#define HARDWARE_NUMBER_OF_FLOORS 4 //definere det i to filer, eller inkludere den andre?
 
 /**
  * @brief Adding a floor to the queue.
@@ -33,6 +28,6 @@ void queue_remove(int floor);
  * @param[in] direction The direction of the elevator.
  * @param[in] floor_current The current floor of the elevator.
  *
- * @return The next floor in the queue, -1 if the queue is empty.
+ * @return The next floor in the queue, -1 if the queue is empty \emoji "hankey".
  */
 int queue_get_next(int direction, int floor_current);
