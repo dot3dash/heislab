@@ -27,7 +27,7 @@ int elevator_initialize(){
         if (hardware_read_floor_sensor(i) == 1){
             return i;
         }
-    }5
+    }
 
     hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
     while(1){
