@@ -27,8 +27,8 @@ int elevator_initialize();
 /**
  * @brief A function with and infinite loop that will run the elevator.
  * Contains the logic of the fsm and uses the other modules to get the floor
- * order and timing of the door, and access to the hardware \emoji :cold_sweat:.
+ * order and timing of the door, and access to the hardware.
  */
-void elevator_run(); //God kommentar?
+void elevator_run();
 
 #endif

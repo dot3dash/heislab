@@ -1,11 +1,11 @@
 /**
  * @file
- * @brief A queue handler for the elevator, created by Camilla \emoji :zzz:.
+ * @brief A queue noe annet for the elevator.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#define HARDWARE_NUMBER_OF_FLOORS 4 //definere det i to filer, eller inkludere den andre?
+#define HARDWARE_NUMBER_OF_FLOORS 4
 
 /**
  * @brief Adding a floor to the queue.
@@ -28,6 +28,6 @@ void queue_remove(int floor);
  * @param[in] direction The direction of the elevator.
  * @param[in] floor_current The current floor of the elevator.
  *
- * @return The next floor in the queue, -1 if the queue is empty \emoji "hankey".
+ * @return The next floor in the queue, -1 if the queue is empty.
  */
 int queue_get_next(int direction, int floor_current);
