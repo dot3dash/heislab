@@ -61,9 +61,9 @@ void move_to_last(int* elevator_direction, int* floor_next, int* direction) {
             hardware_command_movement(HARDWARE_MOVEMENT_UP);
         }
     }
-} // virker referansen???
+}
 
-void state_stopped(ElevatorState* state, int* floor_current, unsigned long int* door_close_time) {
+void state_stopped(ElevatorState* state, unsigned long int* door_close_time) {
     hardware_command_movement(HARDWARE_MOVEMENT_STOP);
     hardware_command_stop_light(1);
 
@@ -72,9 +72,6 @@ void state_stopped(ElevatorState* state, int* floor_current, unsigned long int* 
         queue_remove(f);
         clear_all_floor_lights(f);
         if(hardware_read_floor_sensor(f) == 1) {
-            hardware_command_floor_indicator_on(f);
-            *floor_current = f; // for å unngå jerking, "nødvendig"? // Alltid
-
             *door_close_time = time_get_close();
             hardware_command_door_open(1);
             *state = DOOR_OPEN;
@@ -114,15 +111,8 @@ void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* 
     }
 }
 
-void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction, int* elevator_direction, unsigned long int* door_close_time) {
+void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction, unsigned long int* door_close_time) {
     *floor_next = queue_get_next(*direction, *floor_current);
-    for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
-        if(hardware_read_floor_sensor(f)) {
-        *floor_current = f;
-        hardware_command_floor_indicator_on(*floor_current);
-        *elevator_direction = *direction;
-        }
-    }
     if(hardware_read_floor_sensor(*floor_next)) {
         hardware_command_movement(HARDWARE_MOVEMENT_STOP);
         queue_remove(*floor_current);
@@ -153,8 +143,6 @@ void state_door_open(ElevatorState* state, int* floor_next, int* floor_current, 
     }
 }
 
-// Komme seg opp i en etasje, så gå ned, for å få den til å tro at den er over!
-
 void elevator_run() {
     int floor_current = elevator_initialize();
     int direction = 0;
@@ -169,7 +157,7 @@ void elevator_run() {
             state = STOPPED;
         }
         else {
-            hardware_command_stop_light(0); // bedre plassering? (i Door_open?)
+            hardware_command_stop_light(0);
         }
 
         if(state != STOPPED) {
@@ -188,12 +176,19 @@ void elevator_run() {
                 }
             }
         }
+        for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
+            if(hardware_read_floor_sensor(f)) {
+            floor_current = f;
+            hardware_command_floor_indicator_on(*floor_current);
+            elevator_direction = direction;
+            }
+        }
 
         floor_next = queue_get_next(direction, floor_current);
 
         switch(state) {
             case STOPPED:
-                state_stopped(&state, &floor_current, &door_close_time);
+                state_stopped(&state, &door_close_time);
                 break;
 
             case IDLE:
@@ -201,7 +196,7 @@ void elevator_run() {
                 break;
 
             case MOVING:
-                state_moving(&state, &floor_next, &floor_current, &direction, &elevator_direction, &door_close_time);
+                state_moving(&state, &floor_next, &floor_current, &direction, &door_close_time);
                 break;
             
             case DOOR_OPEN:
