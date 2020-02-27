@@ -100,7 +100,7 @@ void elevator_run() {
                     hardware_command_order_light(i, HARDWARE_ORDER_UP, 1);
                 }
                 if(hardware_read_order(i, HARDWARE_ORDER_INSIDE)) {
-                    // 2 to add to both queues
+                    // 2 to add to both queues // ENUM
                     queue_add(2, i);
                     hardware_command_order_light(i, HARDWARE_ORDER_INSIDE, 1); 
                 }
@@ -110,24 +110,30 @@ void elevator_run() {
                 }
             }
         }
-        switch(state) { // gjemme mer av switchen i funksjoner?
+        switch(state) { // gjemme mer av switchen i funksjoner? JA!
             case STOPPED: { // Egene case-funksjoner?
                 hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                 hardware_command_stop_light(1);
 
+		int to_door = 0;
                 for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; ++f) {
                     queue_remove(f);
                     clear_all_floor_lights(f);
                     if(hardware_read_floor_sensor(f) == 1) {
                         hardware_command_floor_indicator_on(f);
                         floor_current = f; // for å unngå jerking, "nødvendig"?
+			// Alltid
 
                         door_close_time = time_get_close();
                         hardware_command_door_open(1);
                         state = DOOR_OPEN;
+			to_door = 1;
                         break;
                     }
                 }
+		if(to_door) {
+			break;
+		}
 
                 if(hardware_read_stop_signal() == 0) {
                     state = IDLE;
