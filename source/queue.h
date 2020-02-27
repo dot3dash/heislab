@@ -7,6 +7,12 @@
 #include <stdlib.h>
 #define HARDWARE_NUMBER_OF_FLOORS 4
 
+typedef enum {
+    QUEUE_UP,
+    QUEUE_BOTH,
+    QUEUE_DOWN
+} QueueDirection;
+
 /**
  * @brief Adding a floor to the queue.
  *
@@ -14,7 +20,7 @@
  * 0 for queue_down, 1 for queue_up, and 2 for both.
  * @param floor_current The current floor of the elevator.
  */
-void queue_add(int direction, int floor_current);
+void queue_add(QueueDirection direction, int floor_current);
 
 /**
  * @brief Removing av floor from the queue.

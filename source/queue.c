@@ -3,18 +3,16 @@
 int queue_up[HARDWARE_NUMBER_OF_FLOORS];
 int queue_down[HARDWARE_NUMBER_OF_FLOORS];
 
-//direction; 0=ned, 1=opp
-void queue_add(int direction, int floor_current){
-    if(direction == 2) {
+void queue_add(QueueDirection direction, int floor_current){
+    else if (direction == QUEUE_UP) {
+        queue_up[floor_current]=1;
+    }
+    if(direction == QUEUE_BOTH) {
     	queue_down[floor_current] = 1;
 	queue_up[floor_current] = 1;
     }
-    if (direction == 0){
+    if (direction == QUEUE_DOWN){
         queue_down[floor_current]=1;
-    }
-
-    else if (direction == 1) {
-        queue_up[floor_current]=1;
     }
 }
 

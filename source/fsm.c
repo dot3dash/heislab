@@ -50,24 +50,103 @@ int elevator_initialize(){
     }
 }
 
-int order_above(int floor_next, int floor_current) {
-    return floor_next > floor_current;
+void state_stopped(ElevatorState* state, int* floor_current) {
+    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+    hardware_command_stop_light(1);
+
+	int to_door = 0;
+    for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; ++f) {
+        queue_remove(f);
+        clear_all_floor_lights(f);
+        if(hardware_read_floor_sensor(f) == 1) {
+            hardware_command_floor_indicator_on(f);
+            *floor_current = f; // for å unngå jerking, "nødvendig"? // Alltid
+
+            door_close_time = time_get_close();
+            hardware_command_door_open(1);
+            *state = DOOR_OPEN;
+			to_door = 1;
+        }
+    }
+    if(to_door) {
+		return;
+		}
+
+    if(hardware_read_stop_signal() == 0) {
+        state = IDLE;
+        return;
+    }
 }
 
-int order_below(int floor_next, int floor_current) {
-    return floor_next < floor_current;
-}
-int oder_at_floor(int floor_next, int floor_current) {
-    return floor_next == floor_current;
+void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* direction) {
+    if(floor_next == -1) {
+        return;
+    }
+    if(*floor_next > *floor_current) {
+        *direction = 1;
+        hardware_command_movement(HARDWARE_MOVEMENT_UP);
+		*state = MOVING;
+        return;
+    }
+    if(*floor_next < *floor_current) {
+        direction = 0;
+        hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
+		*state = MOVING;
+        return;
+    }
+    if(*floor_next == * floor_current) {
+        move_to_last(&elevator_direction, &floor_next, &direction);
+        *state = MOVING;
+		return;
+    }
 }
 
-void move_to_last(int elevator_direction, int floor_next, int* direction) {
-    if(!hardware_read_floor_sensor(floor_next)) {
-        if(elevator_direction == 1){
+void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction) {
+    *floor_next = queue_get_next(*direction, *floor_current); // TEST DETTE	 
+    for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
+        if(hardware_read_floor_sensor(f)) {
+        *floor_current = f;
+        hardware_command_floor_indicator_on(*floor_current);
+        *elevator_direction = *direction;
+        }
+    }
+    if(hardware_read_floor_sensor(*floor_next)) {
+        hardware_command_movement(HARDWARE_MOVEMENT_STOP);
+        queue_remove(*floor_current);
+        clear_all_floor_lights(*floor_current);
+        *door_close_time = time_get_close();
+        *state = DOOR_OPEN;
+        return;
+    }
+}
+
+void state_door_open(ElevatorState* state, int* floor_next, int* floor_current, int* direction) {
+    hardware_command_door_open(1);
+    *floor_next = queue_get_next(*direction, *floor_current);
+    if(*floor_next == *floor_current) {
+        clear_all_floor_lights(*floor_current);
+        queue_remove(*floor_current);
+        *door_close_time = time_get_close();
+        return;
+    }
+    if(hardware_read_obstruction_signal() == 1) {
+        *door_close_time = time_get_close();
+        return;
+    }
+    if(time_get_current() >= *door_close_time) {
+        hardware_command_door_open(0);
+        *state = IDLE;
+        return;
+    }
+}
+
+void move_to_last(int* elevator_direction, int* floor_next, int* direction) {
+    if(!hardware_read_floor_sensor(*floor_next)) {
+        if(*elevator_direction == 1){
             *direction = 0;
             hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
         }
-        if(elevator_direction == 0) {
+        if(*elevator_direction == 0) {
             *direction = 1;
             hardware_command_movement(HARDWARE_MOVEMENT_UP);
         }
@@ -96,115 +175,38 @@ void elevator_run() {
         if(state != STOPPED) {
             for(int i = 0; i < HARDWARE_NUMBER_OF_FLOORS; ++i) {
                 if(hardware_read_order(i, HARDWARE_ORDER_UP)) {
-                    queue_add(1, i);
+                    queue_add(QUEUE_UP, i);
                     hardware_command_order_light(i, HARDWARE_ORDER_UP, 1);
                 }
                 if(hardware_read_order(i, HARDWARE_ORDER_INSIDE)) {
-                    // 2 to add to both queues // ENUM
-                    queue_add(2, i);
+                    queue_add(QUEUE_BOTH, i);
                     hardware_command_order_light(i, HARDWARE_ORDER_INSIDE, 1); 
                 }
                 if(hardware_read_order(i, HARDWARE_ORDER_DOWN)) {
-                    queue_add(0, i);
+                    queue_add(QUEUE_DOWN, i);
                     hardware_command_order_light(i, HARDWARE_ORDER_DOWN, 1);
                 }
             }
         }
-        switch(state) { // gjemme mer av switchen i funksjoner? JA!
-            case STOPPED: { // Egene case-funksjoner?
-                hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-                hardware_command_stop_light(1);
 
-		int to_door = 0;
-                for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; ++f) {
-                    queue_remove(f);
-                    clear_all_floor_lights(f);
-                    if(hardware_read_floor_sensor(f) == 1) {
-                        hardware_command_floor_indicator_on(f);
-                        floor_current = f; // for å unngå jerking, "nødvendig"?
-			// Alltid
+        floor_next = queue_get_next(direction, floor_current);
 
-                        door_close_time = time_get_close();
-                        hardware_command_door_open(1);
-                        state = DOOR_OPEN;
-			to_door = 1;
-                        break;
-                    }
-                }
-		if(to_door) {
-			break;
-		}
-
-                if(hardware_read_stop_signal() == 0) {
-                    state = IDLE;
-                    break;
-                }       //Merknad (ta med if (hardwarereadstop==0)?)
-                break; //PWM for knapper som blir holdt inne i samme etasje?
-            }
-
-            case IDLE: {
-                floor_next = queue_get_next(direction, floor_current);
-                if(floor_next == -1) {
-                    break;
-                }
-                if(order_above(floor_next, floor_current)) {
-                    direction = 1;
-                    hardware_command_movement(HARDWARE_MOVEMENT_UP);
-			        state = MOVING;
-                    break; // flytte dett til en orderabove, og unngå if?
-                }
-                if(order_below(floor_next, floor_current)) {
-                    direction = 0;
-                    hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-			        state = MOVING; // flytte denne linjen nederst?
-                    break;
-                }
-                if(oder_at_floor(floor_next, floor_current)) {
-                        move_to_last(elevator_direction, floor_next, &direction);
-                        state = MOVING;
-		                break; //merknad!
-                }
+        switch(state) {
+            case STOPPED:
+                state_stopped(&state, &floor_current);
                 break;
-            }
 
-            case MOVING: {
-		        floor_next = queue_get_next(direction, floor_current);// TEST DETTE	 
-                for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
-                    if(hardware_read_floor_sensor(f)) {
-                        floor_current = f;
-                        hardware_command_floor_indicator_on(floor_current);
-                        elevator_direction = direction;
-                    }
-                }
-                if(hardware_read_floor_sensor(floor_next)) {
-                    hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-                    queue_remove(floor_current);
-                    clear_all_floor_lights(floor_current);
-                    door_close_time = time_get_close();
-                    state = DOOR_OPEN;
-                    break; // nødvendig, eller behagelig?
-                }
+            case IDLE:
+                state_idle(&state, &floor_next, &floor_current, &direction);
                 break;
-            }
+
+            case MOVING:
+                state_moving(&state, &floor_next, &floor_current, &direction);
+                break;
             
-            case DOOR_OPEN: {
-                hardware_command_door_open(1);
-                floor_next = queue_get_next(direction, floor_current); // unødvendig?
-                if(floor_next == floor_current) { // eller skal dørene lukke seg?
-                    clear_all_floor_lights(floor_current); //PWM av lys i etasje
-                    queue_remove(floor_current);
-                    door_close_time = time_get_close();
-                    break; // legge inn dette?
-                }
-                if(hardware_read_obstruction_signal() == 1) {
-                    door_close_time = time_get_close();
-                }
-                if(time_get_current() >= door_close_time) {
-                    hardware_command_door_open(0);
-                    state = IDLE;
-                }
+            case DOOR_OPEN:
+                state_door_open(&state, &floor_next, &floor_current, &direction);
                 break;
-            }
         }
     }
 }
