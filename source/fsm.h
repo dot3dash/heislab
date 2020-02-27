@@ -15,6 +15,10 @@ typedef enum {
     STOPPED
 } ElevatorState;
 
+
+/**
+ * Udtelt, trengs dox?
+ */
 static void sigint_handler(int sig);
 
 /**

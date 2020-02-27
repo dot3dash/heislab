@@ -110,8 +110,8 @@ void elevator_run() {
                 }
             }
         }
-        switch(state) {
-            case STOPPED: {
+        switch(state) { // gjemme mer av switchen i funksjoner?
+            case STOPPED: { // Egene case-funksjoner?
                 hardware_command_movement(HARDWARE_MOVEMENT_STOP);
                 hardware_command_stop_light(1);
 
