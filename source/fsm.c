@@ -50,7 +50,20 @@ int elevator_initialize(){
     }
 }
 
-void state_stopped(ElevatorState* state, int* floor_current) {
+void move_to_last(int* elevator_direction, int* floor_next, int* direction) {
+    if(!hardware_read_floor_sensor(*floor_next)) {
+        if(*elevator_direction == 1){
+            *direction = 0;
+            hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
+        }
+        if(*elevator_direction == 0) {
+            *direction = 1;
+            hardware_command_movement(HARDWARE_MOVEMENT_UP);
+        }
+    }
+} // virker referansen???
+
+void state_stopped(ElevatorState* state, int* floor_current, unsigned long int* door_close_time) {
     hardware_command_movement(HARDWARE_MOVEMENT_STOP);
     hardware_command_stop_light(1);
 
@@ -62,7 +75,7 @@ void state_stopped(ElevatorState* state, int* floor_current) {
             hardware_command_floor_indicator_on(f);
             *floor_current = f; // for å unngå jerking, "nødvendig"? // Alltid
 
-            door_close_time = time_get_close();
+            *door_close_time = time_get_close();
             hardware_command_door_open(1);
             *state = DOOR_OPEN;
 			to_door = 1;
@@ -73,13 +86,13 @@ void state_stopped(ElevatorState* state, int* floor_current) {
 		}
 
     if(hardware_read_stop_signal() == 0) {
-        state = IDLE;
+        *state = IDLE;
         return;
     }
 }
 
-void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* direction) {
-    if(floor_next == -1) {
+void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* direction, int* elevator_direction) {
+    if(*floor_next == -1) {
         return;
     }
     if(*floor_next > *floor_current) {
@@ -101,7 +114,7 @@ void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* 
     }
 }
 
-void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction) {
+void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction, unsigned long int* door_close_time) {
     *floor_next = queue_get_next(*direction, *floor_current); // TEST DETTE	 
     for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
         if(hardware_read_floor_sensor(f)) {
@@ -120,7 +133,7 @@ void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int
     }
 }
 
-void state_door_open(ElevatorState* state, int* floor_next, int* floor_current, int* direction) {
+void state_door_open(ElevatorState* state, int* floor_next, int* floor_current, int* direction, unsigned long int* door_close_time) {
     hardware_command_door_open(1);
     *floor_next = queue_get_next(*direction, *floor_current);
     if(*floor_next == *floor_current) {
@@ -139,19 +152,6 @@ void state_door_open(ElevatorState* state, int* floor_next, int* floor_current, 
         return;
     }
 }
-
-void move_to_last(int* elevator_direction, int* floor_next, int* direction) {
-    if(!hardware_read_floor_sensor(*floor_next)) {
-        if(*elevator_direction == 1){
-            *direction = 0;
-            hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
-        }
-        if(*elevator_direction == 0) {
-            *direction = 1;
-            hardware_command_movement(HARDWARE_MOVEMENT_UP);
-        }
-    }
-} // virker referansen???
 
 // Komme seg opp i en etasje, så gå ned, for å få den til å tro at den er over!
 
@@ -193,19 +193,19 @@ void elevator_run() {
 
         switch(state) {
             case STOPPED:
-                state_stopped(&state, &floor_current);
+                state_stopped(&state, &floor_current, &door_close_time);
                 break;
 
             case IDLE:
-                state_idle(&state, &floor_next, &floor_current, &direction);
+                state_idle(&state, &floor_next, &floor_current, &direction, &elevator_direction);
                 break;
 
             case MOVING:
-                state_moving(&state, &floor_next, &floor_current, &direction);
+                state_moving(&state, &floor_next, &floor_current, &direction, &door_close_time);
                 break;
             
             case DOOR_OPEN:
-                state_door_open(&state, &floor_next, &floor_current, &direction);
+                state_door_open(&state, &floor_next, &floor_current, &direction, &door_close_time);
                 break;
         }
     }
