@@ -179,7 +179,7 @@ void elevator_run() {
         for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
             if(hardware_read_floor_sensor(f)) {
             floor_current = f;
-            hardware_command_floor_indicator_on(*floor_current);
+            hardware_command_floor_indicator_on(floor_current);
             elevator_direction = direction;
             }
         }
