@@ -4,7 +4,7 @@ int queue_up[HARDWARE_NUMBER_OF_FLOORS];
 int queue_down[HARDWARE_NUMBER_OF_FLOORS];
 
 void queue_add(QueueDirection direction, int floor_current){
-    else if (direction == QUEUE_UP) {
+    if (direction == QUEUE_UP) {
         queue_up[floor_current]=1;
     }
     if(direction == QUEUE_BOTH) {
