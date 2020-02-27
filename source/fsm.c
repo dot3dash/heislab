@@ -108,13 +108,13 @@ void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* 
         return;
     }
     if(*floor_next == * floor_current) {
-        move_to_last(&elevator_direction, &floor_next, &direction);
+        move_to_last(elevator_direction, floor_next, direction);
         *state = MOVING;
 		return;
     }
 }
 
-void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction, unsigned long int* door_close_time) {
+void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction, int* elevator_direction, unsigned long int* door_close_time) {
     *floor_next = queue_get_next(*direction, *floor_current); // TEST DETTE	 
     for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
         if(hardware_read_floor_sensor(f)) {
@@ -201,7 +201,7 @@ void elevator_run() {
                 break;
 
             case MOVING:
-                state_moving(&state, &floor_next, &floor_current, &direction, &door_close_time);
+                state_moving(&state, &floor_next, &floor_current, &direction, &elevator_direction, &door_close_time);
                 break;
             
             case DOOR_OPEN:
