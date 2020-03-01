@@ -11,7 +11,7 @@
  *
  * @return the current time + TIME_OPEN seconds.
  */
-unsigned long int time_get_close(); // noe ala @p for #define?
+unsigned long int time_get_close();
 
 /**
  * @brief Getting the current time.

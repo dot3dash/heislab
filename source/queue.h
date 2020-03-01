@@ -1,12 +1,14 @@
 /**
  * @file
- * @brief A queue noe annet for the elevator.
+ * @brief A queue to keep track of the orders for the elevator.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #define HARDWARE_NUMBER_OF_FLOORS 4
 
+/**
+ * @brief The direction types used by @c queue_add.
+ */
 typedef enum {
     QUEUE_UP,
     QUEUE_BOTH,
@@ -16,14 +18,13 @@ typedef enum {
 /**
  * @brief Adding a floor to the queue.
  *
- * @param direction The direction of the elevator,
- * 0 for queue_down, 1 for queue_up, and 2 for both.
+ * @param direction The direction of the elevator.
  * @param floor_current The current floor of the elevator.
  */
 void queue_add(QueueDirection direction, int floor_current);
 
 /**
- * @brief Removing av floor from the queue.
+ * @brief Removing a floor from the queue.
  *
  * @param floor The floor to be removed from the queue.
  */
