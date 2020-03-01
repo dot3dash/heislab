@@ -78,9 +78,10 @@ void state_stopped(ElevatorState* state, unsigned long int* door_close_time) {
 			to_door = 1;
         }
     }
+
     if(to_door) {
 		return;
-		}
+	}
 
     if(hardware_read_stop_signal() == 0) {
         *state = IDLE;
@@ -92,18 +93,21 @@ void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* 
     if(*floor_next == -1) {
         return;
     }
+
     if(*floor_next > *floor_current) {
         *direction = 1;
         hardware_command_movement(HARDWARE_MOVEMENT_UP);
 		*state = MOVING;
         return;
     }
+
     if(*floor_next < *floor_current) {
         *direction = 0;
         hardware_command_movement(HARDWARE_MOVEMENT_DOWN);
 		*state = MOVING;
         return;
     }
+
     if(*floor_next == * floor_current) {
         move_to_last(elevator_direction, floor_next, direction);
         *state = MOVING;
@@ -113,10 +117,12 @@ void state_idle(ElevatorState* state, int* floor_next, int* floor_current, int* 
 
 void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int* direction, unsigned long int* door_close_time) {
     *floor_next = queue_get_next(*direction, *floor_current);
+
     if(hardware_read_floor_sensor(*floor_next)) {
         hardware_command_movement(HARDWARE_MOVEMENT_STOP);
-        queue_remove(*floor_current);
         clear_all_floor_lights(*floor_current);
+        queue_remove(*floor_current);
+
         *door_close_time = time_get_close();
         *state = DOOR_OPEN;
         return;
@@ -126,16 +132,19 @@ void state_moving(ElevatorState* state, int* floor_next, int* floor_current, int
 void state_door_open(ElevatorState* state, int* floor_next, int* floor_current, int* direction, unsigned long int* door_close_time) {
     hardware_command_door_open(1);
     *floor_next = queue_get_next(*direction, *floor_current);
+
     if(*floor_next == *floor_current) {
         clear_all_floor_lights(*floor_current);
         queue_remove(*floor_current);
         *door_close_time = time_get_close();
         return;
     }
+
     if(hardware_read_obstruction_signal() == 1) {
         *door_close_time = time_get_close();
         return;
     }
+
     if(time_get_current() >= *door_close_time) {
         hardware_command_door_open(0);
         *state = IDLE;
@@ -148,10 +157,11 @@ void elevator_run() {
     int direction = 0;
     int elevator_direction = 0;
     int floor_next = -1;
-    unsigned long int door_close_time = time_get_close();
-    hardware_command_floor_indicator_on(floor_current);
     ElevatorState state = IDLE;
-
+    unsigned long int door_close_time = time_get_close();
+    
+    hardware_command_floor_indicator_on(floor_current);
+    
     while(1) {
         if (hardware_read_stop_signal() == 1) {
             state = STOPPED;
@@ -176,6 +186,7 @@ void elevator_run() {
                 }
             }
         }
+        
         for(int f = 0; f < HARDWARE_NUMBER_OF_FLOORS; f++) {
             if(hardware_read_floor_sensor(f)) {
             floor_current = f;

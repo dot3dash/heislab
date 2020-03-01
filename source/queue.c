@@ -38,7 +38,6 @@ int queue_get_next(int direction, int floor_current){
                 return i;
             }
         }
-        
     }
     if(direction == 1){
          for (int i=floor_current; i < HARDWARE_NUMBER_OF_FLOORS; i++){
@@ -56,7 +55,6 @@ int queue_get_next(int direction, int floor_current){
                 return i;
             }
         }
-
     }
     return -1;
 }
